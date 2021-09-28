@@ -1,0 +1,35 @@
+digraph Pirates {
+    // from titles
+    tt0325980   [label="Pirates of the Caribbean: The Curse of the Black Pearl" years="2003" type="movie"]
+
+    // from names
+    nm0000988   [label="Jerry Bruckheimer" years="1943"]
+    nm0000136   [label="Johnny Depp" years="1963"]
+    nm0001691   [label="Geoffrey Rush" years="1951"]
+    nm0089217   [label="Orlando Bloom" years="1977"]
+    nm0461136   [label="Keira Knightley" years="1985"]
+    nm0893659   [label="Gore Verbinski" years="1964"]
+    nm0254645   [label="Ted Elliott" years="1961"]
+    nm0744429   [label="Terry Rossio" years="1960"]
+    nm0064181   [label="Stuart Beattie" years=""]
+    nm0938684   [label="Jay Wolpert" years=""]
+
+    // from crew
+    tt0325980 -> nm0893659  [type="director"]
+    tt0325980 -> nm0254645  [type="writer"]
+    tt0325980 -> nm0744429  [type="writer"]
+    tt0325980 -> nm0064181  [type="writer"]
+    tt0325980 -> nm0938684  [type="writer"]
+
+    // from principals
+    tt0325980 -> nm0000988  [type="producer"]
+    tt0325980 -> nm0000136  [type="actor" label="Jack Sparrow"]
+    tt0325980 -> nm0001691  [type="actor" label="Barbossa"]
+    tt0325980 -> nm0089217  [type="actor" label="Will Turner"]
+    tt0325980 -> nm0461136  [type="actor" label="Elizabeth Swann"]
+    tt0325980 -> nm0893659  [type="director"]  // duplicate!
+    tt0325980 -> nm0254645  [type="writer" label="screen story"]  // duplicate!
+    tt0325980 -> nm0744429  [type="writer" label="screen story"]  // duplicate!
+    tt0325980 -> nm0064181  [type="writer" label="screen story"]  // duplicate!
+    tt0325980 -> nm0938684  [type="writer" label="screen story"]  // duplicate!
+}
