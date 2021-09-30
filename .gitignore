@@ -1,0 +1,14 @@
+/.idea
+/.bin/app
+!/.bin/app
+/.bin/app/*
+!/.bin/app/migrations
+!/.bin/app/.gitkeep
+!/.bin/app/config.dist.json
+/vendor
+/docker-compose.override.yml
+*_easyjson.go
+*_gen.go
+*.iml
+.DS_Store
+coverage.out
