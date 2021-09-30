@@ -25,7 +25,7 @@ func (*Bundle) Name() string {
 func (*Bundle) Build(builder *di.Builder) error {
 	return builder.Add(
 		// controller
-		controller.DefMovieController(),
+		controller.DefSystemController(),
 
 		// command
 		command.DefCommandDownload(),
