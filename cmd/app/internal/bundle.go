@@ -29,7 +29,7 @@ func (*Bundle) Build(builder *di.Builder) error {
 
 		// command
 		command.DefCommandDownload(),
-		command.DefCommandMessage(),
+		command.DefCommandLoad(),
 	)
 }
 
