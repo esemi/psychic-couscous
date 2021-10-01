@@ -12,13 +12,26 @@
     "hide_port": false
   },
   "zap": {
-    "cores": [{
-      "level": "debug",
-      "encoding": "json"
-    }],
+    "cores": [
+      {
+        "level": "debug",
+        "encoding": "json"
+      }
+    ],
     "caller": true,
     "stacktrace": "error",
     "development": false
   },
-  "message": "Oops any message"
+  "app": {
+    "data": {
+      "http_addr": "https://datasets.imdbws.com/",
+      "names": "name.basics.tsv.gz",
+      "basics": "title.basics.tsv.gz",
+      "akas": "title.akas.tsv.gz",
+      "crew": "title.crew.tsv.gz",
+      "episode": "title.episode.tsv.gz",
+      "principals": "title.principals.tsv.gz",
+      "ratings": "title.ratings.tsv.gz"
+    }
+  }
 }
