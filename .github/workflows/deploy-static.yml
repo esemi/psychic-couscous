@@ -1,0 +1,28 @@
+name: Pages
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Check GitHub Pages status
+      uses: crazy-max/ghaction-github-status@v2
+      with:
+        pages_threshold: major_outage
+
+    - name: Deploy to GitHub Pages
+      if: success()
+      uses: crazy-max/ghaction-github-pages@v2.5.0
+      with:
+        target_branch: github-pages
+        build_dir: public
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
