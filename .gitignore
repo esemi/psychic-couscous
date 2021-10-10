@@ -12,3 +12,4 @@
 *.iml
 .DS_Store
 coverage.out
+/neo4j

@@ -10,6 +10,7 @@ require (
 	github.com/gozix/viper/v2 v2.1.1
 	github.com/gozix/zap/v2 v2.0.3
 	github.com/labstack/echo/v4 v4.6.1
+	github.com/neo4j/neo4j-go-driver/v4 v4.3.3
 	github.com/sarulabs/di/v2 v2.4.2
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
