@@ -2,10 +2,12 @@
 package internal
 
 import (
+	gzViper "github.com/gozix/viper/v2"
+	gzZap "github.com/gozix/zap/v2"
 	"github.com/sarulabs/di/v2"
-	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/controller"
 
 	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/command"
+	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/controller"
 )
 
 // Bundle is component bundle.
@@ -35,5 +37,5 @@ func (*Bundle) Build(builder *di.Builder) error {
 
 // DependsOn implements the glue.BundleDependsOn interface.
 func (*Bundle) DependsOn() []string {
-	return []string{}
+	return []string{gzViper.BundleName, gzZap.BundleName}
 }
