@@ -12,7 +12,7 @@ import (
 )
 
 // DefCommandLoadName is container name.
-const DefCommandLoadName = "cli.command.message"
+const DefCommandLoadName = "cli.command.load"
 
 // DefCommandLoad register command in di container.
 func DefCommandLoad() di.Def {
@@ -23,8 +23,8 @@ func DefCommandLoad() di.Def {
 		}},
 		Build: func(ctn di.Container) (_ interface{}, err error) {
 			return &cobra.Command{
-				Use:           "message",
-				Short:         "Write configured message to log",
+				Use:           "load",
+				Short:         "Loads data to neo4j",
 				SilenceUsage:  true,
 				SilenceErrors: true,
 				RunE: func(cmd *cobra.Command, args []string) error {

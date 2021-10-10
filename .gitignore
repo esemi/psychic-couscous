@@ -26,3 +26,4 @@ docker-compose.override.yml
 *_gen.go
 *.iml
 coverage.out
+/neo4j
