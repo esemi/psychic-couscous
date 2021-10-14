@@ -3,86 +3,90 @@
 window.addEventListener('load', function () {
     console.log('app started');
 
-    // search input
-    init_search_app();
+    const searchApiEndpoint = '/mock-api/search.json';
 
+    // search input
+    init_search_app(searchApiEndpoint);
 
 
 }, false);
 
 
-function init_search_app() {
+function init_search_app(apiEndpoint) {
+    const minSearchQueryLength = 3;
     const searchInput = document.getElementById('search-form-input');
+    const searchResultContainer = document.getElementById('search-form-results');
+    const searchInputClear = document.getElementById('search-form-clear');
 
-    searchInput.addEventListener("keyup", e => {
+    let activeRequestController;
+    let debounce;
+
+    let search_handler = (e) => {
         let searchString = e.target.value;
         console.log(searchString);
 
-        
+        if (!!searchString) {
+            searchResultContainer.hidden = true;
+        }
 
-        const filteredCharacters = hpCharacters.filter(character => {
-            return (
-                character.name.includes(searchString) ||
-                character.house.includes(searchString)
-            );
-        });
-        displayCharacters(filteredCharacters);
-    });
+        if (searchString.length < minSearchQueryLength) {
+            console.log('skip search event', searchString)
+            return false
+        }
 
-}
+        if (!!debounce) {
+            clearTimeout(debounce);
+        }
 
-function search_listener() {
-    var postSearch = null;
-    var lockMicroTime = 0;
+        debounce = setTimeout(() => {
+            let url = apiEndpoint + '?' + new URLSearchParams({search: searchString,});
+            console.log('send search request', searchString, url);
 
-    jQuery(".js-search-term").bind("keyup change", function()
-    {
-        //новый локтайм и внутреннее время
-        lockMicroTime = new Date().getTime();
-        var innerTime = lockMicroTime;
-        var target = this;
-
-        //ждём 200 милисекунд и запускаем запрос с проверками
-        //@TODO переписать на замыкание (IE8 bug =( )
-        setTimeout(function()
-        {
-            if(lockMicroTime != innerTime)
-                return false;
-
-            var idW = jQuery(target).attr('idW');
-            var term = jQuery.trim( jQuery(target).val() );
-            var result = jQuery(".js-search-result");
-            var colSpan = ( typeof idW === 'undefined') ? 5 : 6;
-            result.parent().removeClass('hide');
-
-            if( /^[\wА-ЯЁа-яё\s.-]{3,30}$/.test(term) !== true )
-            {
-                result.html('<tr><td colspan="'+colSpan+'">Такое условие поиска недопустимо.</td></tr>');
-                return false;
+            //abort existing request
+            if (!!activeRequestController) {
+                activeRequestController.abort();
             }
 
-            //обрубаем лишние запросы
-            if (postSearch != null)
-                postSearch.abort();
+            activeRequestController = new AbortController();
 
-            result.html('<tr><td colspan="'+colSpan+'">'+loadImage+'</td></tr>');
+            let searchRequest = new Request(url, {
+                headers: {'Accept': 'application/json'},
+                method: 'GET',
+                signal: activeRequestController.signal
+            });
 
-            postSearch = jQuery.post('/ajax/search/',
-                {
-                    'idW': ( typeof idW == 'undefined') ? 0 : idW,
-                    'term': term,
-                    'format': 'html'
-                },
-                function(data){
-                    postSearch = null;
-                    result.html(data);
-                },
-                'html');
+            fetch(searchRequest)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Search error, status = " + response.status);
+                    }
+                    return response.json()
+                })
+                .then((data) => {
+                    console.log('fetch search result', data)
+                    //clear search result
+                    searchResultContainer.innerHTML = '';
+                    data.results.forEach((node) => {
+                        console.log('display node = ', node);
+                        let createdNode = document.createElement('ul');
+                        createdNode.setAttribute('data-id', node.id);
+                        createdNode.setAttribute('data-type', node.type);
+                        createdNode.appendChild(document.createTextNode(node.name));
+                        searchResultContainer.appendChild(createdNode);
+                    });
+                    searchResultContainer.hidden = false;
+                });
 
-        },200);
+        }, 350);
+    };
 
-    });
-    // todo search event function
-    // todo search call search-API
-    // todo cancel request before sending new
+
+    let clear_handler = () => {
+        searchResultContainer.hidden = true;
+        searchInput.value = '';
+        searchInput.focus();
+    }
+
+    searchInput.addEventListener("keyup", search_handler, false);
+    searchInputClear.addEventListener("click", clear_handler, false);
 }
