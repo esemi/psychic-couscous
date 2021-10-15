@@ -1,7 +1,7 @@
 "use strict";
 
-const searchApiEndpoint = '/mock-api/search.json';
-const neighboursApiEndpoint = '/mock-api/neighbours.json';
+const searchApiEndpoint = './mock-api/search.json';
+const neighboursApiEndpoint = './mock-api/neighbours.json';
 
 window.addEventListener('load', function () {
     console.log('app started');
