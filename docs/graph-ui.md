@@ -3,10 +3,12 @@ Graph visualisation examples
 
 
 ## Mockups
-- [UI mockup](https://app.moqups.com/eT5rqzznZZ/view/page/a8aba1f59)
+- [UI mockup](https://www.figma.com/file/tuQyV8HUEwHib9RCdE1sl5/psychic-couscous?node-id=0%3A1)
 
 
 ## favorites
+- <https://codesandbox.io/s/github/jacomyal/sigma.js/tree/main/examples/layouts>
+- <https://codesandbox.io/s/github/jacomyal/sigma.js/tree/main/examples/custom-rendering?file=/index.html>
 - <https://doc.linkurio.us/ogma/latest/examples/performance.html>
 - <https://doc.linkurio.us/ogma/latest/examples/fast-highlight.html>
 - <https://doc.linkurio.us/ogma/latest/examples/data-driven-styles.html>
