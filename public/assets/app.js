@@ -1,5 +1,8 @@
 "use strict";
 
+//q: как по человечески модуль инпортунть?
+//q: как быть с console.log на проде?
+
 const searchApiEndpoint = './mock-api/search.json';
 const neighboursApiEndpoint = './mock-api/neighbours.json';
 
@@ -7,7 +10,8 @@ window.addEventListener('load', function () {
     console.log('app started');
 
     //graph init
-    let graph = new GraphEngine();
+    const graphContainerId = 'graph-container';
+    let graph = new GraphEngine(neighboursApiEndpoint, graphContainerId);
 
     // search input
     init_search_app(graph);
@@ -107,7 +111,7 @@ function init_search_app(graph) {
         //todo lock search-input for new chars
         searchResultContainer.hidden = true;
         searchInput.value = e.target.innerText;
-        graph.init(e.target.getAttribute(nodeIdAttr));
+        graph.initRoot(e.target.getAttribute(nodeIdAttr));
     }
 
     searchInput.addEventListener("keyup", search_handler, false);
@@ -117,27 +121,44 @@ function init_search_app(graph) {
 
 
 class GraphEngine {
-    root_id;
+    root_node_id;
+    graph;
+    api;
+
+    #graphContainerId;
     #container;
 
-    constructor() {
-        this.#container = document.getElementById('graph-container');
+    constructor(apiEndpoint, graphContainerId) {
+        this.#graphContainerId = graphContainerId;
+        this.#container = document.getElementById(this.#graphContainerId);
+        this.api = apiEndpoint;
         this.displayNotInitState();
     }
 
-    init(root_node_id) {
-        this.root_id = root_node_id;
+    initRoot(root_node_id) {
+        this.root_node_id = root_node_id;
         console.log('init graph engine for', root_node_id)
-        // todo init graph
-        // todo init graph-controls
+
         let relations = this.fetchNodeRelations(root_node_id);
-        // todo fill graph
+
+        // init graph
+        this.graph = new sigma(this.#graphContainerId);
+
+        // todo init graph-controls
+
+        this.appendRelations(relations);
     }
 
     fetchNodeRelations() {
-        neighboursApiEndpoint;
-        return [];
+        //todo impl
+        return {
+            nodes: [],
+            edges: []
+        };
+    }
 
+    appendRelations(relations) {
+        //todo impl
     }
 
     displayNotInitState() {
