@@ -2,6 +2,8 @@
 package main
 
 import (
+	"gitlab.backend.keenetic.link/imdb-graph/app/gozix/neo4j"
+	"gitlab.backend.keenetic.link/imdb-graph/app/gozix/pwd"
 	"log"
 
 	gzEcho "github.com/gozix/echo/v2"
@@ -27,6 +29,8 @@ func main() {
 			gzInternal.NewBundle(),
 			gzEcho.NewBundle(),
 			gzUT.NewBundle(),
+			pwd.NewBundle(),
+			neo4j.NewBundle(),
 		),
 	)
 
