@@ -22,6 +22,12 @@
     "stacktrace": "error",
     "development": false
   },
+  "neo4j": {
+    "addr": "localhost:7687",
+    "username": "",
+    "password": "",
+    "realm": ""
+  },
   "app": {
     "imdb": {
       "download_path": "download",

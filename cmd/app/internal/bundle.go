@@ -5,6 +5,8 @@ import (
 	gzViper "github.com/gozix/viper/v2"
 	gzZap "github.com/gozix/zap/v2"
 	"github.com/sarulabs/di/v2"
+	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/database"
+	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/manager"
 
 	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/command"
 	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/controller"
@@ -32,6 +34,12 @@ func (*Bundle) Build(builder *di.Builder) error {
 		// command
 		command.DefCommandDownload(),
 		command.DefCommandLoad(),
+
+		// database
+		database.DefNamesRepository(),
+
+		// manager
+		manager.DefPersonManager(),
 	)
 }
 

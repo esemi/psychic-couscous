@@ -72,7 +72,7 @@ func DownloadRunE(ctn di.Container) func(cmd *cobra.Command, args []string) (err
 }
 
 // Handler run.
-func (s *downloader) Handler(cmd *cobra.Command, _ []string) (err error) {
+func (s *downloader) Handler(_ *cobra.Command, _ []string) (err error) {
 
 	var host = s.config.GetString("http_addr")
 	if host == "" {
@@ -86,7 +86,7 @@ func (s *downloader) Handler(cmd *cobra.Command, _ []string) (err error) {
 		return ErrKeyNotExist
 	}
 
-	var downloadPath = s.config.GetStringMapString("download_path")
+	var downloadPath = s.config.GetString("download_path")
 	if files == nil {
 		s.logger.Println("download_path not exist")
 		return ErrKeyNotExist
