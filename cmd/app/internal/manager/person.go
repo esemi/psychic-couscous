@@ -85,17 +85,17 @@ func (m *nameManager) Load(ctx context.Context) error {
 		default:
 		}
 
-		i++
-		if i == 1 {
-			continue
-		}
-
 		rec, err := cr.Read()
 		if err != nil {
 			if err == io.EOF {
 				err = nil
 			}
 			return err
+		}
+
+		i++
+		if i == 1 {
+			continue
 		}
 
 		var birthY, deathY int64
@@ -125,7 +125,7 @@ func (m *nameManager) Load(ctx context.Context) error {
 			return err
 		}
 
-		if i%100 == 0 {
+		if i%10 == 0 {
 			m.logger.Info("Processed lines", zap.Int64("lines", i))
 		}
 	}
