@@ -2,23 +2,18 @@
 package command
 
 import (
-	gzGlue "github.com/gozix/glue/v2"
-	gzViper "github.com/gozix/viper/v2"
-	"github.com/sarulabs/di/v2"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/domain"
-	"gitlab.backend.keenetic.link/imdb-graph/app/gozix/pwd"
 	"log"
 	"os"
-	"sync"
+
+	gzGlue "github.com/gozix/glue/v2"
+	"github.com/sarulabs/di/v2"
+	"github.com/spf13/cobra"
+	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/command/load"
 )
 
 type loader struct {
-	logger  *log.Logger
-	config  *gzViper.Viper
-	dir     string
-	loaders []domain.Loader
+	logger *log.Logger
+	cmds   []*cobra.Command
 }
 
 // DefCommandLoadName is container name.
@@ -32,43 +27,32 @@ func DefCommandLoad() di.Def {
 			Name: gzGlue.TagCliCommand,
 		}},
 		Build: func(ctn di.Container) (_ interface{}, err error) {
-			return &cobra.Command{
+			var cmd = &cobra.Command{
 				Use:           "load",
 				Short:         "Loads data to neo4j",
 				SilenceUsage:  true,
 				SilenceErrors: true,
 				RunE:          LoadRunE(ctn),
-			}, nil
+			}
+
+			cmd.AddCommand(ctn.Get(load.DefCommandLoadEntitiesName).(*cobra.Command))
+			cmd.AddCommand(ctn.Get(load.DefCommandLoadRelationsName).(*cobra.Command))
+
+			return cmd, nil
 		},
 	}
 }
 
 func LoadRunE(ctn di.Container) func(cmd *cobra.Command, args []string) (err error) {
 	return func(cmd *cobra.Command, args []string) (err error) {
-		var (
-			config = ctn.Get(gzViper.BundleName).(*viper.Viper)
-			dir    = ctn.Get(pwd.BundleName).(*pwd.PWD).CurrentDir()
-			logger = log.New(os.Stdout, "", log.LstdFlags)
-		)
-		config = config.Sub("app.imdb")
-		if config == nil {
-			logger.Println("app.imdb not exist")
-			return ErrKeyNotExist
-		}
+		var logger = log.New(os.Stdout, "", log.LstdFlags)
 
 		var d = loader{
-			logger:  logger,
-			config:  config,
-			dir:     dir,
-			loaders: make([]domain.Loader, 0),
-		}
-
-		for _, def := range ctn.Definitions() {
-			for _, tag := range def.Tags {
-				if tag.Name == domain.DefTagLoader {
-					d.loaders = append(d.loaders, ctn.Get(def.Name).(domain.Loader))
-				}
-			}
+			logger: logger,
+			cmds: []*cobra.Command{
+				ctn.Get(load.DefCommandLoadEntitiesName).(*cobra.Command),
+				ctn.Get(load.DefCommandLoadRelationsName).(*cobra.Command),
+			},
 		}
 
 		return d.Handler(cmd, args)
@@ -76,21 +60,10 @@ func LoadRunE(ctn di.Container) func(cmd *cobra.Command, args []string) (err err
 }
 
 // Handler run.
-func (s *loader) Handler(cmd *cobra.Command, _ []string) (err error) {
-	s.logger.Println("Start...")
-	var wg sync.WaitGroup
-	for i := range s.loaders {
-		wg.Add(1)
-		go func(loader domain.Loader) {
-			defer wg.Done()
-
-			if err := loader.Load(cmd.Context()); err != nil {
-				s.logger.Printf("%s loader err: %s", loader.Name(), err)
-			}
-		}(s.loaders[i])
+func (s *loader) Handler(cmd *cobra.Command, args []string) (err error) {
+	for _, c := range s.cmds {
+		s.logger.Printf("Command: %s \n Err: %s", c.Name(), c.RunE(cmd, args))
 	}
-	wg.Wait()
-	s.logger.Println("Finished!")
 
 	return
 }
