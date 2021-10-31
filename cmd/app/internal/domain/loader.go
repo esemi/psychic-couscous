@@ -2,9 +2,17 @@ package domain
 
 import "context"
 
-const DefTagLoader = "loader"
+const (
+	DefTagLoaderRelations = "loader-relations"
+	DefTagLoaderEntities  = "loader-entities"
+)
 
-type Loader interface {
+type LoaderRelations interface {
 	Name() string
-	Load(ctx context.Context) error
+	LoadRelations(ctx context.Context) error
+}
+
+type LoaderEntities interface {
+	Name() string
+	LoadEntities(ctx context.Context) error
 }

@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/spf13/viper"
+
 	gzViper "github.com/gozix/viper/v2"
 	gzzap "github.com/gozix/zap/v2"
 	"github.com/sarulabs/di/v2"
@@ -25,10 +27,11 @@ type nameManager struct {
 	logger   *zap.Logger
 	repo     domain.PersonRepository
 	filepath string
+	config   *viper.Viper
 }
 
 //compile time check.
-var _ domain.Loader = (*nameManager)(nil)
+var _ domain.LoaderRelations = (*nameManager)(nil)
 
 //DefPersonManagerName is definition name.
 const DefPersonManagerName = "personManager"
@@ -38,7 +41,9 @@ func DefPersonManager() di.Def {
 	return di.Def{
 		Name: DefPersonManagerName,
 		Tags: []di.Tag{{
-			Name: domain.DefTagLoader,
+			Name: domain.DefTagLoaderRelations,
+		}, {
+			Name: domain.DefTagLoaderEntities,
 		}},
 		Build: func(ctn di.Container) (_ interface{}, err error) {
 			var (
@@ -52,6 +57,7 @@ func DefPersonManager() di.Def {
 				logger:   logger,
 				repo:     repo,
 				filepath: fmt.Sprintf("%s/%s/%s", dirData.CurrentDir(), config.GetString("download_path"), config.GetString(nameFilenameConfigPath)),
+				config:   config,
 			}, nil
 		},
 	}
@@ -62,7 +68,8 @@ func (m *nameManager) Save() error {
 	return nil
 }
 
-func (m *nameManager) Load(ctx context.Context) error {
+func (m *nameManager) LoadRelations(ctx context.Context) error {
+	return nil
 
 	f, err := os.Open(m.filepath)
 	if err != nil {
@@ -133,4 +140,21 @@ func (m *nameManager) Load(ctx context.Context) error {
 
 func (m *nameManager) Name() string {
 	return DefPersonManagerName
+}
+
+func (m *nameManager) LoadEntities(ctx context.Context) (err error) {
+	var complete = make(chan struct{})
+	go func() {
+		err = m.repo.LoadFromCSV(m.config.GetString(nameFilenameConfigPath))
+		complete <- struct{}{}
+	}()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-complete:
+			return
+		}
+	}
 }
