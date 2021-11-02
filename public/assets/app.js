@@ -9,12 +9,15 @@ const neighboursApiEndpoint = './mock-api/neighbours.json';
 window.addEventListener('load', function () {
     console.log('app started');
 
-    //graph init
-    const graphContainerId = 'graph-container';
-    let graph = new GraphEngine(neighboursApiEndpoint, graphContainerId);
-
-    // search input
-    init_search_app(graph);
+    // init graph app
+    let graphApp = new GraphEngine(neighboursApiEndpoint);
+    graphApp.graph.addNode(
+        {id: 'nn000001', title: 'First test node'},
+        {id: 'nn000002', title: 'Second test node'},
+    );
+    graphApp.appendRelations([]);
+    // // init search app
+    // init_search_app(graphApp);
 
 
 }, false);
@@ -36,7 +39,7 @@ function init_search_app(graph) {
 
         if (!!searchString) {
             searchResultContainer.hidden = true;
-            graph.displayNotInitState();
+            graph.showNotInitState();
         }
 
         if (searchString.length < minSearchQueryLength) {
@@ -78,7 +81,7 @@ function init_search_app(graph) {
 
                     if (!data.results.length) {
                         searchResultContainer.hidden = true;
-                        graph.displayNotFoundState(searchString);
+                        graph.showNotFoundState(searchString);
                         return
                     }
 
@@ -102,7 +105,7 @@ function init_search_app(graph) {
         searchResultContainer.hidden = true;
         searchInput.value = '';
         searchInput.focus();
-        graph.displayNotInitState();
+        graph.reset();
     }
 
 
@@ -125,28 +128,34 @@ class GraphEngine {
     graph;
     api;
 
-    #graphContainerId;
-    #container;
+    static graphContainerId = 'graph-container';
+    static stateNotInitId = 'graph-state-not-init';
+    static stateNotFoundId = 'graph-state-not-found';
+    #containerStateNotInit;
+    #containerStateNotFound;
+    #containerForGraph;
 
-    constructor(apiEndpoint, graphContainerId) {
-        this.#graphContainerId = graphContainerId;
-        this.#container = document.getElementById(this.#graphContainerId);
+    constructor(apiEndpoint) {
         this.api = apiEndpoint;
-        this.displayNotInitState();
+
+        this.#containerStateNotInit = document.getElementById(GraphEngine.stateNotInitId);
+        this.#containerStateNotFound = document.getElementById(GraphEngine.stateNotFoundId);
+        this.#containerForGraph = document.getElementById(GraphEngine.graphContainerId);
+
+        // init graph
+        this.graph = new sigma(GraphEngine.graphContainerId);
+        // todo init graph-controls
+
+        this.reset();
     }
 
     initRoot(root_node_id) {
-        this.root_node_id = root_node_id;
         console.log('init graph engine for', root_node_id)
+        this.root_node_id = root_node_id;
 
-        let relations = this.fetchNodeRelations(root_node_id);
-
-        // init graph
-        this.graph = new sigma(this.#graphContainerId);
-
-        // todo init graph-controls
-
+        let relations = this.fetchNodeRelations(this.root_node_id);
         this.appendRelations(relations);
+        this.showGraph();
     }
 
     fetchNodeRelations() {
@@ -159,13 +168,44 @@ class GraphEngine {
 
     appendRelations(relations) {
         //todo impl
+        //todo add new nodes
+        //todo add new edges
+
+        // fit nodes size by new degrees
+        this.graph.nodes.forEach((node, ) => {
+            // node size depends on its degree
+            console.log('fit node size = ', node);
+            console.log('fit node size = ', this.graph.degree(node));
+
+            // atts.size = Math.sqrt(this.graph.degree(node)) / 2;
+        });
     }
 
-    displayNotInitState() {
-        this.#container.innerText = 'Use search to explore a couscous';
+    showGraph() {
+        this.hideAll();
+        this.#containerForGraph.hidden = false;
+        this.graph.refresh();
     }
 
-    displayNotFoundState(searchString) {
-        this.#container.innerText = 'No results for ' + searchString;
+    reset() {
+        this.graph.clear();
+        this.showNotInitState();
+    }
+
+    showNotInitState() {
+        this.hideAll();
+        this.#containerStateNotInit.hidden = false
+    }
+
+    showNotFoundState(searchString) {
+        this.hideAll();
+        this.#containerStateNotFound.innerText = 'No results for ' + searchString;
+        this.#containerStateNotFound.hidden = false
+    }
+
+    hideAll() {
+        this.#containerStateNotInit.hidden = true;
+        this.#containerStateNotFound.hidden = true;
+        this.#containerForGraph.hidden = true;
     }
 }
