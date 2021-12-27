@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sync"
 
@@ -110,6 +111,12 @@ func (s *downloader) Handler(_ *cobra.Command, _ []string) (err error) {
 				s.logger.Printf("download %s failed: %s", filename, err)
 			}
 			s.logger.Printf("%s was downloaded", filename)
+			if err := s.escapeQuote(
+				fmt.Sprintf("%s/%s/%s", dir, downloadPath, filename),
+			); err != nil {
+				s.logger.Printf("quote escaped %s failed: %s", filename, err)
+			}
+			s.logger.Printf("%s was quote escaped", filename)
 		}(name, host, filename)
 	}
 	wg.Wait()
@@ -137,4 +144,16 @@ func (s *downloader) downloadFile(filepath string, url string) error {
 	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
 	return err
+}
+
+func (s *downloader) escapeQuote(filepath string) (err error) {
+	return nil // todo need to solve it
+	cmd := fmt.Sprintf(
+		`zcat < %[1]s | sed 's/"/\\"/g' | gzip -c > %[1]s.tmp && mv %[1]s.tmp %[1]s`,
+		filepath)
+	_, err = exec.Command("sh", "-c", cmd).Output()
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -18,4 +18,5 @@ type PersonRepository interface {
 	GetByName(name string) (Person, error)
 	Save(name Person) error
 	LoadFromCSV(filename string) error
+	LoadRelationsFromCSV(filename string) error
 }

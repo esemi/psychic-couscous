@@ -16,13 +16,13 @@ type personRepository struct {
 // compile time check.
 var _ domain.PersonRepository = (*personRepository)(nil)
 
-// DefNamesRepositoryName is definition name.
-const DefNamesRepositoryName = "personRepository"
+// DefPersonsRepositoryName is definition name.
+const DefPersonsRepositoryName = "personRepository"
 
-// DefNamesRepository is definition getter.
-func DefNamesRepository() di.Def {
+// DefPersonsRepository is definition getter.
+func DefPersonsRepository() di.Def {
 	return di.Def{
-		Name: DefNamesRepositoryName,
+		Name: DefPersonsRepositoryName,
 		Build: func(ctn di.Container) (_ interface{}, err error) {
 			var neo = ctn.Get(neo4j.BundleName).(neo4j.Driver)
 
@@ -81,6 +81,20 @@ func (p *personRepository) LoadFromCSV(filename string) (err error) {
 		professions: split(line.primaryProfession, ','), 
 		knownForTitles: split(line.knownForTitles, ',') 
 	})`, filename), nil)
+
+	return err
+}
+
+func (p *personRepository) LoadRelationsFromCSV(filename string) (err error) {
+	var session = p.neo.NewSession(neo.SessionConfig{})
+	_, err = session.Run(fmt.Sprintf(
+		`USING PERIODIC COMMIT 500 LOAD CSV WITH HEADERS FROM 'file:///%s' AS line FIELDTERMINATOR '\t'
+	UNWIND split(line.knownForTitles, ',') AS kft
+	MATCH 
+		(person:Person {id: line.nconst}),
+		(movie:Movie {id: kft})
+	CREATE (person)-[:KNOWN_FOR]->(movie)
+`, filename), nil)
 
 	return err
 }
