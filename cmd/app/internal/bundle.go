@@ -38,10 +38,12 @@ func (*Bundle) Build(builder *di.Builder) error {
 		load.DefCommandLoadEntities(),
 
 		// database
-		database.DefNamesRepository(),
+		database.DefPersonsRepository(),
+		database.DefMoviesRepository(),
 
 		// manager
 		manager.DefPersonManager(),
+		manager.DefMovieManager(),
 	)
 }
 
