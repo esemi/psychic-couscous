@@ -82,6 +82,11 @@ func (p *personRepository) LoadFromCSV(filename string) (err error) {
 		knownForTitles: split(line.knownForTitles, ',') 
 	})`, filename), nil)
 
+	_, err = session.Run(
+		`CREATE BTREE INDEX person_id_uix IF NOT EXISTS
+		FOR (p:Person)
+		ON (p.id)`, nil)
+
 	return err
 }
 
