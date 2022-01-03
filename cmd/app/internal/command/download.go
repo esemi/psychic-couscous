@@ -147,9 +147,8 @@ func (s *downloader) downloadFile(filepath string, url string) error {
 }
 
 func (s *downloader) escapeQuote(filepath string) (err error) {
-	return nil // todo need to solve it
 	cmd := fmt.Sprintf(
-		`zcat < %[1]s | sed 's/"/\\"/g' | gzip -c > %[1]s.tmp && mv %[1]s.tmp %[1]s`,
+		`zcat < %[1]s | sed 's/\//\\\\\//g;s/"/\/"/g' | gzip -c > %[1]s.tmp && mv %[1]s.tmp %[1]s`,
 		filepath)
 	_, err = exec.Command("sh", "-c", cmd).Output()
 	if err != nil {

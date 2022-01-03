@@ -91,5 +91,10 @@ func (p *movieRepository) LoadFromCSV(filename string) (err error) {
 		genres: split(line.genres, ',')
 	})`, filename), nil)
 
+	_, err = session.Run(
+		`CREATE BTREE INDEX movie_id_uix IF NOT EXISTS
+		FOR (m:Movie)
+		ON (m.id)`, nil)
+
 	return err
 }

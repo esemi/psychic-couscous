@@ -62,7 +62,10 @@ func LoadRunE(ctn di.Container) func(cmd *cobra.Command, args []string) (err err
 // Handler run.
 func (s *loader) Handler(cmd *cobra.Command, args []string) (err error) {
 	for _, c := range s.cmds {
-		s.logger.Printf("Command: %s \n Err: %s", c.Name(), c.RunE(cmd, args))
+		s.logger.Printf("Command: %s \n", c.Name())
+		if err = c.RunE(cmd, args); err != nil {
+			s.logger.Printf("Err: %s", err)
+		}
 	}
 
 	return
