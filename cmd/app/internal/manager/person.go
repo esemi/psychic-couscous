@@ -16,7 +16,7 @@ import (
 
 const personFilenameConfigPath = "files.persons"
 
-type nameManager struct {
+type personManager struct {
 	logger   *zap.Logger
 	repo     domain.PersonRepository
 	filepath string
@@ -24,7 +24,7 @@ type nameManager struct {
 }
 
 //compile time check.
-var _ domain.LoaderRelations = (*nameManager)(nil)
+var _ domain.LoaderRelations = (*personManager)(nil)
 
 //DefPersonManagerName is definition name.
 const DefPersonManagerName = "personManager"
@@ -46,7 +46,7 @@ func DefPersonManager() di.Def {
 				repo    = ctn.Get(database.DefPersonsRepositoryName).(domain.PersonRepository)
 			)
 
-			return &nameManager{
+			return &personManager{
 				logger:   logger,
 				repo:     repo,
 				filepath: fmt.Sprintf("%s/%s/%s", dirData.CurrentDir(), config.GetString("download_path"), config.GetString(personFilenameConfigPath)),
@@ -56,12 +56,12 @@ func DefPersonManager() di.Def {
 	}
 }
 
-func (m *nameManager) Save() error {
+func (m *personManager) Save() error {
 
 	return nil
 }
 
-func (m *nameManager) LoadRelations(ctx context.Context) (err error) {
+func (m *personManager) LoadRelations(ctx context.Context) (err error) {
 	var complete = make(chan struct{})
 	go func() {
 		err = m.repo.LoadRelationsFromCSV(m.config.GetString(personFilenameConfigPath))
@@ -78,11 +78,11 @@ func (m *nameManager) LoadRelations(ctx context.Context) (err error) {
 	}
 }
 
-func (m *nameManager) Name() string {
+func (m *personManager) Name() string {
 	return DefPersonManagerName
 }
 
-func (m *nameManager) LoadEntities(ctx context.Context) (err error) {
+func (m *personManager) LoadEntities(ctx context.Context) (err error) {
 	var complete = make(chan struct{})
 	go func() {
 		err = m.repo.LoadFromCSV(m.config.GetString(personFilenameConfigPath))
