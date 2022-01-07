@@ -1,29 +1,24 @@
 "use strict";
 
-//q: как по человечески модуль инпортунть?
 //q: как быть с console.log на проде?
 
 const searchApiEndpoint = './mock-api/search.json';
-const neighboursApiEndpoint = './mock-api/neighbours.json';
+const nodeInfoApiEndpoint = './mock-api/node-info.json';
 
 window.addEventListener('load', function () {
     console.log('app started');
 
     // init graph app
-    let graphApp = new GraphEngine(neighboursApiEndpoint);
-    graphApp.graph.addNode(
-        {id: 'nn000001', title: 'First test node'},
-        {id: 'nn000002', title: 'Second test node'},
-    );
-    graphApp.appendRelations([]);
-    // // init search app
-    // init_search_app(graphApp);
+    let graphApp = new GraphEngine(nodeInfoApiEndpoint);
+
+    // init search app
+    init_search_app(graphApp, searchApiEndpoint);
 
 
 }, false);
 
 
-function init_search_app(graph) {
+function init_search_app(graph, searchApi) {
     const minSearchQueryLength = 3;
     const nodeIdAttr = 'data-id';
     const searchInput = document.getElementById('search-form-input');
@@ -39,7 +34,7 @@ function init_search_app(graph) {
 
         if (!!searchString) {
             searchResultContainer.hidden = true;
-            graph.showNotInitState();
+            graph.showPreInitState();
         }
 
         if (searchString.length < minSearchQueryLength) {
@@ -52,7 +47,7 @@ function init_search_app(graph) {
         }
 
         debounce = setTimeout(() => {
-            let url = searchApiEndpoint + '?' + new URLSearchParams({search: searchString,});
+            let url = searchApi + '?' + new URLSearchParams({search: searchString,});
             console.log('send search request', searchString, url);
 
             //abort existing request
@@ -77,9 +72,8 @@ function init_search_app(graph) {
                 })
                 .then((data) => {
                     console.log('fetch search result', data)
-                    //clear search result
 
-                    if (!data.results.length) {
+                    if (!data.hasOwnProperty('results') || !data.results.length) {
                         searchResultContainer.hidden = true;
                         graph.showNotFoundState(searchString);
                         return
@@ -94,6 +88,7 @@ function init_search_app(graph) {
                         createdNode.appendChild(document.createTextNode(node.name));
                         searchResultContainer.appendChild(createdNode);
                     });
+
                     searchResultContainer.hidden = false;
                 });
 
@@ -105,16 +100,15 @@ function init_search_app(graph) {
         searchResultContainer.hidden = true;
         searchInput.value = '';
         searchInput.focus();
-        graph.reset();
+        graph.init();
     }
 
 
     let select_handler = (e) => {
         console.log('select root node handler', e.target);
-        //todo lock search-input for new chars
         searchResultContainer.hidden = true;
         searchInput.value = e.target.innerText;
-        graph.initRoot(e.target.getAttribute(nodeIdAttr));
+        graph.addRootNode(e.target.getAttribute(nodeIdAttr));
     }
 
     searchInput.addEventListener("keyup", search_handler, false);
@@ -124,75 +118,126 @@ function init_search_app(graph) {
 
 
 class GraphEngine {
-    root_node_id;
+    rootNodeId;
     graph;
-    api;
+    nodesCount;
+    edgesCount;
+    nodeInfoApiEndpoint;
+    activeRequestController;
 
     static graphContainerId = 'graph-container';
     static stateNotInitId = 'graph-state-not-init';
     static stateNotFoundId = 'graph-state-not-found';
+
     #containerStateNotInit;
     #containerStateNotFound;
     #containerForGraph;
 
-    constructor(apiEndpoint) {
-        this.api = apiEndpoint;
+    constructor(nodeInfoApiEndpoint) {
+        this.nodeInfoApiEndpoint = nodeInfoApiEndpoint;
 
         this.#containerStateNotInit = document.getElementById(GraphEngine.stateNotInitId);
         this.#containerStateNotFound = document.getElementById(GraphEngine.stateNotFoundId);
         this.#containerForGraph = document.getElementById(GraphEngine.graphContainerId);
 
-        // init graph
-        this.graph = new sigma(GraphEngine.graphContainerId);
-        // todo init graph-controls
-
-        this.reset();
+        this.init();
     }
 
-    initRoot(root_node_id) {
-        console.log('init graph engine for', root_node_id)
-        this.root_node_id = root_node_id;
+    addRootNode(root_node_id) {
+        // load and display root node with relations
+        console.log('init graph engine for ', root_node_id)
+        this.rootNodeId = root_node_id;
 
-        let relations = this.fetchNodeRelations(this.root_node_id);
-        this.appendRelations(relations);
-        this.showGraph();
-    }
-
-    fetchNodeRelations() {
-        //todo impl
-        return {
-            nodes: [],
-            edges: []
-        };
-    }
-
-    appendRelations(relations) {
-        //todo impl
-        //todo add new nodes
-        //todo add new edges
-
-        // fit nodes size by new degrees
-        this.graph.nodes.forEach((node, ) => {
-            // node size depends on its degree
-            console.log('fit node size = ', node);
-            console.log('fit node size = ', this.graph.degree(node));
-
-            // atts.size = Math.sqrt(this.graph.degree(node)) / 2;
+        this._fetchNodeRelations(this.rootNodeId).then((nodeInfo) => {
+            this.appendRelations(nodeInfo.nodes, nodeInfo.edges);
+            this.showGraph();
         });
+    }
+
+    _fetchNodeRelations(nodeId) {
+        // fetch all relations by nodeId
+        let url = this.nodeInfoApiEndpoint + '?' + new URLSearchParams({node_id: nodeId,});
+        console.log('send node info request', nodeId, url);
+
+        let nodeInfoRequest = new Request(url, {
+            headers: {'Accept': 'application/json'},
+            method: 'GET',
+            signal: this.activeRequestController.signal
+        });
+
+        return fetch(nodeInfoRequest)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Request error, status = " + response.status);
+                }
+                return response.json()
+            })
+            .then((responseJson) => {
+                console.log('fetch node info response', responseJson)
+                return {
+                    nodes: [responseJson.node],
+                    edges: responseJson.relations,
+                }
+            });
+    }
+
+    appendRelations(nodes, edges) {
+        // append nodes and edges to graph
+        //todo check nodes/edges duplicate
+        // todo redraw (layout changed?)
+
+        //todo impl
+        this.edgesCount += edges.length
+        this.nodesCount += nodes.length
+
+        nodes.forEach((node) => {
+            let createdNode = document.createElement('ul');
+            createdNode.setAttribute('data-id', node.id);
+            createdNode.setAttribute('data-type', node.type);
+            createdNode.appendChild(
+                document.createTextNode(`Node: ${node.name}`)
+            );
+            this.#containerForGraph.appendChild(createdNode);
+        });
+        edges.forEach((edge) => {
+            let createdEdge = document.createElement('ul');
+            createdEdge.setAttribute('data-from-node-id', edge.from_id);
+            createdEdge.setAttribute('data-to-node-id', edge.to_id);
+            createdEdge.setAttribute('data-type', edge.type);
+            createdEdge.appendChild(
+                document.createTextNode(
+                    `Edge: ${edge.from_id}->${edge.to_id} ${edge.type}[${edge.name}]`
+                )
+            );
+            this.#containerForGraph.appendChild(createdEdge);
+        });
+
+        console.log('append relations: ', nodes, edges)
+        console.log('debug: edges=', this.edgesCount, '; nodes=', this.nodesCount)
+    }
+
+    init() {
+        if (!!this.activeRequestController) {
+            this.activeRequestController.abort();
+        }
+        this.activeRequestController = new AbortController();
+
+        this.nodesCount = 0;
+        this.edgesCount = 0;
+
+        // todo use any graph visualization lib here
+        this.graph = {};
+
+        this.showPreInitState();
     }
 
     showGraph() {
         this.hideAll();
         this.#containerForGraph.hidden = false;
-        this.graph.refresh();
+        //todo redraw graph ?
     }
 
-    reset() {
-        this.graph.clear();
-        this.showNotInitState();
-    }
-
-    showNotInitState() {
+    showPreInitState() {
         this.hideAll();
         this.#containerStateNotInit.hidden = false
     }

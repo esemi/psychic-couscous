@@ -1,0 +1,33 @@
+{
+  "node": {
+    "name": "Pirates of the Caribbean: The Curse of the Black Pearl (2003)",
+    "type": "movie",
+    "id": "tt0325980"
+  },
+  "relations": [{
+      "from_id": "tt0325980",
+      "to_id": "nm0000988",
+      "type": "producer",
+      "name": ""
+  },{
+    "from_id": "tt0325980",
+    "to_id": "nm0000136",
+    "type": "actor",
+    "name": "Jack Sparrow"
+  },{
+    "from_id": "tt0325980",
+    "to_id": "nm0001691",
+    "type": "actor",
+    "name": "Barbossa"
+  },{
+    "from_id": "tt0325980",
+    "to_id": "nm0089217",
+    "type": "actor",
+    "name": "Will Turner"
+  },{
+    "from_id": "tt0325980",
+    "to_id": "nm0461136",
+    "type": "actor",
+    "name": "Elizabeth Swann"
+  }]
+}
