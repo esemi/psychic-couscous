@@ -1,7 +1,5 @@
 "use strict";
 
-//q: как быть с console.log на проде?
-
 const searchApiEndpoint = './mock-api/search.json';
 const nodeInfoApiEndpoint = './mock-api/node-info.json';
 
@@ -13,7 +11,6 @@ window.addEventListener('load', function () {
 
     // init search app
     init_search_app(graphApp, searchApiEndpoint);
-
 
 }, false);
 
@@ -30,7 +27,6 @@ function init_search_app(graph, searchApi) {
 
     let search_handler = (e) => {
         let searchString = e.target.value.trim().toLowerCase();
-        console.log(searchString);
 
         if (!!searchString) {
             searchResultContainer.hidden = true;
@@ -120,8 +116,6 @@ function init_search_app(graph, searchApi) {
 class GraphEngine {
     rootNodeId;
     graph;
-    nodesCount;
-    edgesCount;
     nodeInfoApiEndpoint;
     activeRequestController;
 
@@ -175,7 +169,7 @@ class GraphEngine {
             .then((responseJson) => {
                 console.log('fetch node info response', responseJson)
                 return {
-                    nodes: [responseJson.node],
+                    nodes: responseJson.nodes,
                     edges: responseJson.relations,
                 }
             });
@@ -183,37 +177,38 @@ class GraphEngine {
 
     appendRelations(nodes, edges) {
         // append nodes and edges to graph
-        //todo check nodes/edges duplicate
-        // todo redraw (layout changed?)
+        this.graph.addNodes(
+            nodes.map(node => {
+                return {
+                    id: node.id,
+                    attributes: {
+                        text: node.name,
+                    },
+                    data: {
+                        name: node.name,
+                        type: node.type,
+                    }
+                }
+            })
+        );
+        this.graph.addEdges(
+            edges.map(edge => {
+                return {
+                    id: `${edge.from_id}:${edge.to_id}`,
+                    source: edge.from_id,
+                    target: edge.to_id,
+                    attributes: {
+                        text: `${edge.type}[${edge.name}]`
+                    },
+                    data: {
+                        name: edge.name,
+                        type: edge.type,
+                    }
+                }
+            })
+        );
 
-        //todo impl
-        this.edgesCount += edges.length
-        this.nodesCount += nodes.length
-
-        nodes.forEach((node) => {
-            let createdNode = document.createElement('ul');
-            createdNode.setAttribute('data-id', node.id);
-            createdNode.setAttribute('data-type', node.type);
-            createdNode.appendChild(
-                document.createTextNode(`Node: ${node.name}`)
-            );
-            this.#containerForGraph.appendChild(createdNode);
-        });
-        edges.forEach((edge) => {
-            let createdEdge = document.createElement('ul');
-            createdEdge.setAttribute('data-from-node-id', edge.from_id);
-            createdEdge.setAttribute('data-to-node-id', edge.to_id);
-            createdEdge.setAttribute('data-type', edge.type);
-            createdEdge.appendChild(
-                document.createTextNode(
-                    `Edge: ${edge.from_id}->${edge.to_id} ${edge.type}[${edge.name}]`
-                )
-            );
-            this.#containerForGraph.appendChild(createdEdge);
-        });
-
-        console.log('append relations: ', nodes, edges)
-        console.log('debug: edges=', this.edgesCount, '; nodes=', this.nodesCount)
+        console.log('debug: edges=', this.graph.getNodes().size, '; nodes=', this.graph.getEdges().size)
     }
 
     init() {
@@ -222,19 +217,48 @@ class GraphEngine {
         }
         this.activeRequestController = new AbortController();
 
-        this.nodesCount = 0;
-        this.edgesCount = 0;
+        // @see <https://doc.linkurio.us/ogma/3.2.0/quickstart.html>
+        this.graph = new Ogma({
+            container: this.#containerForGraph.id,
+            options: {
+                directedEdges: true,
+                edgesAlwaysCurvy: true,
+            }
+        });
+        this.graph.styles.addNodeRule({
+            color: this.graph.rules.map({
+                field: 'type',
+                values: {
+                    'movie': 'green',
+                    'name': 'yellow',
+                },
+                fallback: 'black'
+            })
+        });
 
-        // todo use any graph visualization lib here
-        this.graph = {};
+        //
+        this.graph.events.onClick(event => {
+            const target = event.target;
+            if (!target || !target.isNode) {
+                return
+            }
+            console.log(`Node ${target.getId()} was clicked`);
+        });
 
         this.showPreInitState();
+    }
+
+    drawGraph() {
+        // apply graph layout and draw results
+        this.graph.layouts.force({
+            incremental: true,
+        })
     }
 
     showGraph() {
         this.hideAll();
         this.#containerForGraph.hidden = false;
-        //todo redraw graph ?
+        this.drawGraph();
     }
 
     showPreInitState() {
