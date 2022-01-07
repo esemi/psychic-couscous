@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>imdb-vis</title>
     <link rel="stylesheet" href="./assets/main.css">
+
+    <script defer type="text/javascript" src="./assets/ogm.min.js"></script>
+    <script defer type="text/javascript" src="./assets/app.js"></script>
   </head>
   <body>
     <main>
@@ -15,8 +18,13 @@
         <ol id="search-form-results">
         </ol>
       </section>
-      <section id="graph-container"></section>
+      <section>
+        <div>
+          <div id="graph-state-not-init">Use search to explore a couscous</div>
+          <div id="graph-state-not-found">Not found</div>
+        </div>
+        <div id="graph-container"></div>
+      </section>
     </main>
-    <script type="text/javascript" src="./assets/app.js"></script>
   </body>
 </html>
