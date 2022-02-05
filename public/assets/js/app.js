@@ -18,9 +18,14 @@ window.addEventListener('load', function () {
 function init_search_app(graph, searchApi) {
     const minSearchQueryLength = 3;
     const nodeIdAttr = 'data-id';
+    const searchForm = document.querySelector('.search-form');
     const searchInput = document.getElementById('search-form-input');
     const searchResultContainer = document.getElementById('search-form-results');
     const searchInputClear = document.getElementById('search-form-clear');
+
+    const filter = document.querySelector('.graph-filter');
+    const filterToggleBtn = filter?.querySelector('.graph-filter-toggle');
+    const filterList = filter?.querySelector('.graph-filter-list');
 
     let activeRequestController;
     let debounce;
@@ -31,6 +36,10 @@ function init_search_app(graph, searchApi) {
         if (!!searchString) {
             searchResultContainer.hidden = true;
             graph.showPreInitState();
+            searchInputClear.hidden = false;
+            searchForm?.classList.remove('active')
+        } else {
+            searchInputClear.hidden = true
         }
 
         if (searchString.length < minSearchQueryLength) {
@@ -68,8 +77,8 @@ function init_search_app(graph, searchApi) {
                 })
                 .then((data) => {
                     console.log('fetch search result', data)
-
                     if (!data.hasOwnProperty('results') || !data.results.length) {
+                        searchForm?.classList.remove('active')
                         searchResultContainer.hidden = true;
                         graph.showNotFoundState(searchString);
                         return
@@ -78,38 +87,45 @@ function init_search_app(graph, searchApi) {
                     searchResultContainer.innerHTML = '';
                     data.results.forEach((node) => {
                         console.log('display node = ', node);
-                        let createdNode = document.createElement('ul');
+                        let createdNode = document.createElement('li');
                         createdNode.setAttribute(nodeIdAttr, node.id);
                         createdNode.setAttribute('data-type', node.type);
-                        createdNode.appendChild(document.createTextNode(node.name));
+                        createdNode.textContent = node.name;
                         searchResultContainer.appendChild(createdNode);
                     });
 
+                    searchForm?.classList.add('active')
                     searchResultContainer.hidden = false;
                 });
 
         }, 350);
     };
 
-
     let clear_handler = () => {
+        searchInputClear.hidden = true;
         searchResultContainer.hidden = true;
         searchInput.value = '';
-        searchInput.focus();
+        searchForm?.classList.remove('active')
         graph.init();
     }
 
-
     let select_handler = (e) => {
         console.log('select root node handler', e.target);
+        searchForm?.classList.remove('active')
         searchResultContainer.hidden = true;
         searchInput.value = e.target.innerText;
         graph.addRootNode(e.target.getAttribute(nodeIdAttr));
     }
 
+    let toggle_filterList = () => {
+        filterToggleBtn.classList.toggle('active')
+        filterList.hidden = !filterList.hidden
+    }
+    
     searchInput.addEventListener("keyup", search_handler, false);
     searchInputClear.addEventListener("click", clear_handler, false);
     searchResultContainer.addEventListener("click", select_handler, false);
+    filterToggleBtn?.addEventListener("click", toggle_filterList, false);
 }
 
 
@@ -223,8 +239,10 @@ class GraphEngine {
             options: {
                 directedEdges: true,
                 edgesAlwaysCurvy: true,
+                backgroundColor: '#252525',
             }
         });
+       
         this.graph.styles.addNodeRule({
             color: this.graph.rules.map({
                 field: 'type',
@@ -268,7 +286,7 @@ class GraphEngine {
 
     showNotFoundState(searchString) {
         this.hideAll();
-        this.#containerStateNotFound.innerText = 'No results for ' + searchString;
+        this.#containerStateNotFound.querySelector('span').textContent = `"${searchString}"`;
         this.#containerStateNotFound.hidden = false
     }
 
