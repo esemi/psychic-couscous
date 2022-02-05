@@ -111,8 +111,19 @@ body{
 .search-form-clear{
     display: flex;
     align-items: center;
-    padding: 23px 16px;
+    padding: 24px 16px;
     cursor: pointer;
+    transition: 0.2s;
+}
+
+.search-form-clear:hover{
+    background: var(--gray-13);
+}
+
+@media (pointer: coarse) {
+    .search-form-clear:hover{
+        background: var(--white);
+    }
 }
 
 .search-form-clear img{
@@ -140,7 +151,7 @@ body{
 }
 
 .search-form ul li{
-    padding: 12px 24px 11px;
+    padding: 12px 16px;
     border-top: 1px solid var(--gray-13);
     cursor: pointer;
     transition: 0.2s;
@@ -249,7 +260,7 @@ body{
 
 .graph-filter-list{
     margin: 0px 12px;
-    padding: 7px 0px 8px;
+    padding: 8px 0px;
     border-top: 1px solid var(--gray-2);
 }
 
