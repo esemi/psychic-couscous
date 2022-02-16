@@ -6,7 +6,6 @@ import (
 	"os"
 	"sync"
 
-	gzGlue "github.com/gozix/glue/v2"
 	gzViper "github.com/gozix/viper/v2"
 	"github.com/sarulabs/di/v2"
 	"github.com/spf13/cobra"
@@ -28,13 +27,10 @@ const DefCommandLoadRelationsName = "cli.command.load-relations"
 func DefCommandLoadRelations() di.Def {
 	return di.Def{
 		Name: DefCommandLoadRelationsName,
-		Tags: []di.Tag{{
-			Name: gzGlue.TagCliCommand,
-		}},
 		Build: func(ctn di.Container) (_ interface{}, err error) {
 			return &cobra.Command{
 				Use:           "relations",
-				Short:         "Updates relations to neo4j",
+				Short:         "Load relations to neo4j",
 				SilenceUsage:  true,
 				SilenceErrors: true,
 				RunE:          LoadRunE(ctn),

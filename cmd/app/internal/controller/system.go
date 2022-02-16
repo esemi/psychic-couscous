@@ -39,10 +39,30 @@ func DefSystemController() di.Def {
 // Serve init routes
 func (c *systemController) Serve(e *echo.Echo) {
 	e.GET("_health", c.health)
+	e.GET("/api/v1/search", c.search)
 }
 
 // health action
 func (c *systemController) health(ctx echo.Context) (err error) {
 
 	return ctx.JSON(http.StatusOK, struct{}{})
+}
+
+type (
+	searchResponseItem struct {
+		ID   string `json:"id"`
+		Type string `json:"type"`
+		Name string `json:"name"`
+	}
+	searchResponse []searchResponseItem
+)
+
+// search action
+func (c *systemController) search(ctx echo.Context) (err error) {
+	var query string
+	if query = ctx.QueryParam("q"); len(query) == 0 {
+		return ctx.JSON(http.StatusOK, []searchResponse{})
+	}
+
+	return ctx.JSON(http.StatusOK, []searchResponse{})
 }

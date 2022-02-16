@@ -6,7 +6,6 @@ import (
 	"os"
 	"sync"
 
-	gzGlue "github.com/gozix/glue/v2"
 	"github.com/sarulabs/di/v2"
 	"github.com/spf13/cobra"
 	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/domain"
@@ -26,9 +25,6 @@ const DefCommandLoadEntitiesName = "cli.command.load-entities"
 func DefCommandLoadEntities() di.Def {
 	return di.Def{
 		Name: DefCommandLoadEntitiesName,
-		Tags: []di.Tag{{
-			Name: gzGlue.TagCliCommand,
-		}},
 		Build: func(ctn di.Container) (_ interface{}, err error) {
 			return &cobra.Command{
 				Use:           "entities",
