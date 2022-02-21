@@ -16,11 +16,6 @@ yarn.lock
 package-lock.json
 .zip
 .bin/app
-!/.bin/app
-.bin/app/*
-!/.bin/app/migrations
-!/.bin/app/.gitkeep
-!/.bin/app/config.dist.json
 vendor
 docker-compose.override.yml
 *_easyjson.go
