@@ -21,4 +21,5 @@ type MovieRepository interface {
 	GetByName(name string) (Movie, error)
 	Save(name Movie) error
 	LoadFromCSV(filename string) error
+	Truncate() error
 }

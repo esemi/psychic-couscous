@@ -67,7 +67,7 @@ func (m *movieManager) Name() string {
 func (m *movieManager) LoadEntities(ctx context.Context) (err error) {
 	var complete = make(chan struct{})
 	go func() {
-		err = m.repo.LoadFromCSV(m.config.GetString(movieFilenameConfigPath))
+		err = m.repo.LoadFromCSV(m.filepath)
 		complete <- struct{}{}
 	}()
 
