@@ -2,13 +2,14 @@
 package command
 
 import (
+	"log"
+	"os"
+
 	gzGlue "github.com/gozix/glue/v2"
-	gzZap "github.com/gozix/zap/v2"
 	"github.com/sarulabs/di/v2"
 	"github.com/spf13/cobra"
 	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/database"
 	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/domain"
-	"go.uber.org/zap"
 )
 
 // DefCommandTruncateName is container name.
@@ -28,22 +29,19 @@ func DefCommandTruncate() di.Def {
 				SilenceUsage:  true,
 				SilenceErrors: true,
 				RunE: func(cmd *cobra.Command, args []string) (err error) {
+					var logger = log.New(os.Stdout, "", log.LstdFlags)
 
 					var movieRepository domain.MovieRepository
 					if err = ctn.Fill(database.DefMoviesRepositoryName, &movieRepository); err != nil {
 						return err
 					}
 
-					var logger *zap.Logger
-					if err = ctn.Fill(gzZap.BundleName, &logger); err != nil {
-						return err
-					}
-
 					if err = movieRepository.Truncate(); err != nil {
+						logger.Printf("Truncate failed: Err: %s", err)
 						return err
 					}
 
-					logger.Info("Truncated success")
+					logger.Printf("Truncated success")
 					return nil
 				},
 			}, nil

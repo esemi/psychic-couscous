@@ -104,8 +104,7 @@ func (p *movieRepository) Truncate() (err error) {
 	session := p.neo.NewSession(neo.SessionConfig{})
 	defer session.Close()
 
-	_, err = session.Run(`MATCH (n) DETACH DELETE n`, map[string]interface{}{})
-	if err != nil {
+	if _, err = session.Run(`MATCH (n) DETACH DELETE n`, map[string]interface{}{}); err != nil {
 		return err
 	}
 
