@@ -10,9 +10,6 @@ import (
 	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/controller"
 	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/database"
 	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/manager"
-	"github.com/sarulabs/di/v2"
-	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/controller"
-	"gitlab.backend.keenetic.link/imdb-graph/app/cmd/app/internal/command"
 )
 
 // Bundle is component bundle.
@@ -39,6 +36,7 @@ func (*Bundle) Build(builder *di.Builder) error {
 		command.DefCommandLoad(),
 		load.DefCommandLoadRelations(),
 		load.DefCommandLoadEntities(),
+		command.DefCommandTruncate(),
 
 		// database
 		database.DefPersonsRepository(),

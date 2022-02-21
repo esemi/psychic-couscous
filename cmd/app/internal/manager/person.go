@@ -64,7 +64,7 @@ func (m *personManager) Save() error {
 func (m *personManager) LoadRelations(ctx context.Context) (err error) {
 	var complete = make(chan struct{})
 	go func() {
-		err = m.repo.LoadRelationsFromCSV(m.config.GetString(personFilenameConfigPath))
+		err = m.repo.LoadRelationsFromCSV(m.filepath)
 		complete <- struct{}{}
 	}()
 
