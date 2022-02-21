@@ -43,6 +43,7 @@ func DefCommandTruncate() di.Def {
 						return err
 					}
 
+					logger.Info("Truncated success")
 					return nil
 				},
 			}, nil
