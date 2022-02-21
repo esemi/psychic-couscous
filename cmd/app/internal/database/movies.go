@@ -77,6 +77,7 @@ func (p *movieRepository) Save(movie domain.Movie) (err error) {
 
 func (p *movieRepository) LoadFromCSV(filename string) (err error) {
 	var session = p.neo.NewSession(neo.SessionConfig{})
+	defer session.Close()
 	_, err = session.Run(fmt.Sprintf(
 		`USING PERIODIC COMMIT 500 LOAD CSV WITH HEADERS FROM 'file:///%s' AS line FIELDTERMINATOR '\t'
 	CREATE (p:Movie { 
