@@ -33,8 +33,8 @@
       "download_path": "download",
       "http_addr": "https://datasets.imdbws.com/",
       "files": {
-        "names": "name.basics.tsv.gz",
-        "basics": "title.basics.tsv.gz",
+        "persons": "name.basics.tsv.gz",
+        "movies": "title.basics.tsv.gz",
         "akas": "title.akas.tsv.gz",
         "crew": "title.crew.tsv.gz",
         "episode": "title.episode.tsv.gz",
