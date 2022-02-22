@@ -31,13 +31,3 @@ Flags:
 -c, --config string   config file
 -h, --help            help for .bin/app/app
 ```
-
-### For deploy to production
-```bash
-$ 
-$ 
-$ 
-$ 
-$ 
-$ 
-```

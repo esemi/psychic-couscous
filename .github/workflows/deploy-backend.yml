@@ -1,12 +1,12 @@
 name: Backend-app
 
-on:
-  push:
-    branches:
-      - master
+on: [push]
+#  push:
+#    branches:
+#      - master
 
 env:
-  DEPLOY_FOLDER: "docs"  # todo use correct build path
+  DEPLOY_FOLDER: ".bin/app"
 
 jobs:
   deploy:
@@ -15,6 +15,15 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+
+    - name: Build app
+      run: |
+        cd cmd/app/ 
+        go build -o "../../$DEPLOY_FOLDER" 
+        cd ../../
+        cp config.template.json "$DEPLOY_FOLDER/config.json"
+        sed -i "s|%IMDB_DB_LOGIN%|${{secrets.IMDB_DB_LOGIN}}|" "$DEPLOY_FOLDER/config.json"
+        sed -i "s|%IMDB_DB_PASSWORD%|${{secrets.IMDB_DB_PASSWORD}}|" "$DEPLOY_FOLDER/config.json"
 
     - name: Freeze version
       run: |
@@ -30,7 +39,7 @@ jobs:
         port: 22
         source: ${{ env.DEPLOY_FOLDER }}
         target: "deploy"
-
+#    todo download new sources in by new release
     - name: Rotate release
       uses: appleboy/ssh-action@master
       with:
@@ -41,3 +50,5 @@ jobs:
         script: |
           whoami
           rm -rf backup && mv current backup && mv deploy current
+
+#    todo manual action for load new sources to DB
