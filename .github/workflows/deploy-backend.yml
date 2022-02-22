@@ -1,0 +1,43 @@
+name: Backend-app
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  DEPLOY_FOLDER: "docs"  # todo use correct build path
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Freeze version
+      run: |
+        echo "${{ github.ref }}::${{ github.sha }}" > "$DEPLOY_FOLDER/version.txt"
+        ls -la $DEPLOY_FOLDER
+
+    - name: Upload files
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.CI_SSH_HOST }}
+        username: ${{ secrets.CI_SSH_LOGIN }}
+        password: ${{ secrets.CI_SSH_PASSWORD }}
+        port: 22
+        source: ${{ env.DEPLOY_FOLDER }}
+        target: "deploy"
+
+    - name: Rotate release
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.CI_SSH_HOST }}
+        username: ${{ secrets.CI_SSH_LOGIN }}
+        password: ${{ secrets.CI_SSH_PASSWORD }}
+        port: 22
+        script: |
+          whoami
+          rm -rf backup && mv current backup && mv deploy current
