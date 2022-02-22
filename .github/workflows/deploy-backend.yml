@@ -6,7 +6,9 @@ on: [push]
 #      - master
 
 env:
-  DEPLOY_FOLDER: ".bin/app"
+  DEPLOY_FOLDER_SOURCE: ".bin/app"
+  DEPLOY_FOLDER_REMOTE: "deploy"
+  APP_DOWNLOAD_CMD: "./deploy/.bin/app/app download"
 
 jobs:
   deploy:
@@ -19,16 +21,15 @@ jobs:
     - name: Build app
       run: |
         cd cmd/app/ 
-        go build -o "../../$DEPLOY_FOLDER" 
+        go build -o "../../$DEPLOY_FOLDER_SOURCE" 
         cd ../../
-        cp config.template.json "$DEPLOY_FOLDER/config.json"
-        sed -i "s|%IMDB_DB_LOGIN%|${{secrets.IMDB_DB_LOGIN}}|" "$DEPLOY_FOLDER/config.json"
-        sed -i "s|%IMDB_DB_PASSWORD%|${{secrets.IMDB_DB_PASSWORD}}|" "$DEPLOY_FOLDER/config.json"
+        cp config.template.json "$DEPLOY_FOLDER_SOURCE/config.json"
+        sed -i "s|%IMDB_DB_LOGIN%|${{secrets.IMDB_DB_LOGIN}}|" "$DEPLOY_FOLDER_SOURCE/config.json"
+        sed -i "s|%IMDB_DB_PASSWORD%|${{secrets.IMDB_DB_PASSWORD}}|" "$DEPLOY_FOLDER_SOURCE/config.json"
 
     - name: Freeze version
       run: |
-        echo "${{ github.ref }}::${{ github.sha }}" > "$DEPLOY_FOLDER/version.txt"
-        ls -la $DEPLOY_FOLDER
+        echo "${{ github.ref }}::${{ github.sha }}" > "$DEPLOY_FOLDER_SOURCE/version.txt"
 
     - name: Upload files
       uses: appleboy/scp-action@master
@@ -37,9 +38,19 @@ jobs:
         username: ${{ secrets.CI_SSH_LOGIN }}
         password: ${{ secrets.CI_SSH_PASSWORD }}
         port: 22
-        source: ${{ env.DEPLOY_FOLDER }}
-        target: "deploy"
-#    todo download new sources in by new release
+        source: ${{ env.DEPLOY_FOLDER_SOURCE }}
+        target: ${{ env.DEPLOY_FOLDER_REMOTE }}
+
+    - name: Download IMDB sources
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.CI_SSH_HOST }}
+        username: ${{ secrets.CI_SSH_LOGIN }}
+        password: ${{ secrets.CI_SSH_PASSWORD }}
+        port: 22
+        script: |
+          ${{ env.APP_DOWNLOAD_CMD }}
+
     - name: Rotate release
       uses: appleboy/ssh-action@master
       with:
@@ -48,7 +59,6 @@ jobs:
         password: ${{ secrets.CI_SSH_PASSWORD }}
         port: 22
         script: |
-          whoami
-          rm -rf backup && mv current backup && mv deploy current
+          rm -rf backup && mv current backup && mv ${{ env.DEPLOY_FOLDER_REMOTE }} current
 
 #    todo manual action for load new sources to DB
