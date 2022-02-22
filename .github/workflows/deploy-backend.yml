@@ -1,14 +1,14 @@
 name: Backend-app
 
-on: [push]
-#  push:
-#    branches:
-#      - master
+on:
+  push:
+    branches:
+      - backend  # fixme to master
 
 env:
-  DEPLOY_FOLDER_SOURCE: ".bin/app"
+  DEPLOY_FOLDER_SOURCE: "bin"
   DEPLOY_FOLDER_REMOTE: "deploy"
-  APP_DOWNLOAD_CMD: "./deploy/.bin/app/app download"
+  APP_DOWNLOAD_CMD: "./deploy/bin/app download"
 
 jobs:
   deploy:
@@ -60,5 +60,3 @@ jobs:
         port: 22
         script: |
           rm -rf backup && mv current backup && mv ${{ env.DEPLOY_FOLDER_REMOTE }} current
-
-#    todo manual action for load new sources to DB
