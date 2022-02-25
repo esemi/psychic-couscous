@@ -5,7 +5,6 @@
 .Trashes
 .idea
 .vscode
-.github
 .env
 ehthumbs.db
 Thumbs.db
@@ -15,7 +14,7 @@ dist
 yarn.lock
 package-lock.json
 .zip
-.bin/app
+bin/
 vendor
 docker-compose.override.yml
 *_easyjson.go

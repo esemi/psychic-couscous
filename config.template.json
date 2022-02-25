@@ -24,8 +24,8 @@
   },
   "neo4j": {
     "addr": "localhost:7687",
-    "username": "",
-    "password": "",
+    "username": "%IMDB_DB_LOGIN%",
+    "password": "%IMDB_DB_PASSWORD%",
     "realm": ""
   },
   "app": {
