@@ -3,7 +3,8 @@ name: Reset-IMDB-graph
 on: workflow_dispatch
 
 env:
-  APP_DB_RESET_CMD: "./current/bin/app load"
+  APP_DB_RESET_CMD: "./current/bin/app truncate"
+  APP_DB_LOAD_CMD: "./current/bin/app load"
 
 jobs:
   deploy:
@@ -19,3 +20,4 @@ jobs:
         port: 22
         script: |
           ${{ env.APP_DB_RESET_CMD }}
+          ${{ env.APP_DB_LOAD_CMD }}
