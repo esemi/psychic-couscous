@@ -14,3 +14,11 @@ dist
 yarn.lock
 package-lock.json
 .zip
+bin/
+vendor
+docker-compose.override.yml
+*_easyjson.go
+*_gen.go
+*.iml
+coverage.out
+/neo4j

@@ -3,10 +3,12 @@ name: Backend-app
 on:
   push:
     branches:
-      - master
+      - backend  # fixme to master
 
 env:
-  DEPLOY_FOLDER: "docs"  # todo use correct build path
+  DEPLOY_FOLDER_SOURCE: "bin"
+  DEPLOY_FOLDER_REMOTE: "deploy"
+  APP_DOWNLOAD_CMD: "./deploy/bin/app download"
 
 jobs:
   deploy:
@@ -16,10 +18,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Build app
+      run: |
+        cd cmd/app/ 
+        go build -o "../../$DEPLOY_FOLDER_SOURCE" 
+        cd ../../
+        cp config.template.json "$DEPLOY_FOLDER_SOURCE/config.json"
+        sed -i "s|%IMDB_DB_LOGIN%|${{secrets.IMDB_DB_LOGIN}}|" "$DEPLOY_FOLDER_SOURCE/config.json"
+        sed -i "s|%IMDB_DB_PASSWORD%|${{secrets.IMDB_DB_PASSWORD}}|" "$DEPLOY_FOLDER_SOURCE/config.json"
+
     - name: Freeze version
       run: |
-        echo "${{ github.ref }}::${{ github.sha }}" > "$DEPLOY_FOLDER/version.txt"
-        ls -la $DEPLOY_FOLDER
+        echo "${{ github.ref }}::${{ github.sha }}" > "$DEPLOY_FOLDER_SOURCE/version.txt"
 
     - name: Upload files
       uses: appleboy/scp-action@master
@@ -28,8 +38,18 @@ jobs:
         username: ${{ secrets.CI_SSH_LOGIN }}
         password: ${{ secrets.CI_SSH_PASSWORD }}
         port: 22
-        source: ${{ env.DEPLOY_FOLDER }}
-        target: "deploy"
+        source: ${{ env.DEPLOY_FOLDER_SOURCE }}
+        target: ${{ env.DEPLOY_FOLDER_REMOTE }}
+
+    - name: Download IMDB sources
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.CI_SSH_HOST }}
+        username: ${{ secrets.CI_SSH_LOGIN }}
+        password: ${{ secrets.CI_SSH_PASSWORD }}
+        port: 22
+        script: |
+          ${{ env.APP_DOWNLOAD_CMD }}
 
     - name: Rotate release
       uses: appleboy/ssh-action@master
@@ -39,5 +59,4 @@ jobs:
         password: ${{ secrets.CI_SSH_PASSWORD }}
         port: 22
         script: |
-          whoami
-          rm -rf backup && mv current backup && mv deploy current
+          rm -rf backup && mv current backup && mv ${{ env.DEPLOY_FOLDER_REMOTE }} current

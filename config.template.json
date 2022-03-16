@@ -1,0 +1,46 @@
+{
+  "echo": {
+    "host": "0.0.0.0",
+    "port": "8080",
+    "debug": false,
+    "level": "debug",
+    "static": {
+      "prefix": "/",
+      "root": ""
+    },
+    "hide_banner": false,
+    "hide_port": false
+  },
+  "zap": {
+    "cores": [
+      {
+        "level": "debug",
+        "encoding": "json"
+      }
+    ],
+    "caller": true,
+    "stacktrace": "error",
+    "development": false
+  },
+  "neo4j": {
+    "addr": "localhost:7687",
+    "username": "%IMDB_DB_LOGIN%",
+    "password": "%IMDB_DB_PASSWORD%",
+    "realm": ""
+  },
+  "app": {
+    "imdb": {
+      "download_path": "download",
+      "http_addr": "https://datasets.imdbws.com/",
+      "files": {
+        "persons": "name.basics.tsv.gz",
+        "movies": "title.basics.tsv.gz",
+        "akas": "title.akas.tsv.gz",
+        "crew": "title.crew.tsv.gz",
+        "episode": "title.episode.tsv.gz",
+        "principals": "title.principals.tsv.gz",
+        "ratings": "title.ratings.tsv.gz"
+      }
+    }
+  }
+}
