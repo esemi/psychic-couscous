@@ -33,11 +33,11 @@ const DefMovieManagerName = "movieManager"
 func DefMovieManager() di.Def {
 	return di.Def{
 		Name: DefMovieManagerName,
-		Tags: []di.Tag{{
-			Name: domain.DefTagLoaderRelations,
-		}, {
-			Name: domain.DefTagLoaderEntities,
-		}},
+		Tags: []di.Tag{
+			{Name: domain.DefTagLoaderRelations},
+			{Name: domain.DefTagLoaderEntities},
+			{Name: domain.DefTagTruncateEntities},
+		},
 		Build: func(ctn di.Container) (_ interface{}, err error) {
 			var (
 				logger  = ctn.Get(gzzap.BundleName).(*zap.Logger).Named(DefMovieManagerName)
@@ -56,7 +56,7 @@ func DefMovieManager() di.Def {
 	}
 }
 
-func (m *movieManager) LoadRelations(ctx context.Context) error {
+func (m *movieManager) LoadRelations(_ context.Context) error {
 	return nil
 }
 
@@ -79,4 +79,8 @@ func (m *movieManager) LoadEntities(ctx context.Context) (err error) {
 			return
 		}
 	}
+}
+
+func (m *movieManager) Truncate(ctx context.Context) (err error) {
+	return m.repo.Truncate(ctx)
 }

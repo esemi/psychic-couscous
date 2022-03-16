@@ -31,13 +31,13 @@ func DefCommandLoadEntities() di.Def {
 				Short:         "load entities data to neo4j",
 				SilenceUsage:  true,
 				SilenceErrors: true,
-				RunE:          LoadEntitiesRunE(ctn),
+				RunE:          EntitiesRunE(ctn),
 			}, nil
 		},
 	}
 }
 
-func LoadEntitiesRunE(ctn di.Container) func(cmd *cobra.Command, args []string) (err error) {
+func EntitiesRunE(ctn di.Container) func(cmd *cobra.Command, args []string) (err error) {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var (
 			dir    = ctn.Get(pwd.BundleName).(*pwd.PWD).CurrentDir()

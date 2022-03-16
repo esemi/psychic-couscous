@@ -1,5 +1,7 @@
 package domain
 
+import "context"
+
 type (
 	PersonID string
 
@@ -19,4 +21,5 @@ type PersonRepository interface {
 	Save(name Person) error
 	LoadFromCSV(filename string) error
 	LoadRelationsFromCSV(filename string) error
+	Truncate(ctx context.Context) error
 }

@@ -33,11 +33,11 @@ const DefPersonManagerName = "personManager"
 func DefPersonManager() di.Def {
 	return di.Def{
 		Name: DefPersonManagerName,
-		Tags: []di.Tag{{
-			Name: domain.DefTagLoaderRelations,
-		}, {
-			Name: domain.DefTagLoaderEntities,
-		}},
+		Tags: []di.Tag{
+			{Name: domain.DefTagLoaderRelations},
+			{Name: domain.DefTagLoaderEntities},
+			{Name: domain.DefTagTruncateEntities},
+		},
 		Build: func(ctn di.Container) (_ interface{}, err error) {
 			var (
 				logger  = ctn.Get(gzzap.BundleName).(*zap.Logger).Named(DefPersonManagerName)
@@ -97,4 +97,8 @@ func (m *personManager) LoadEntities(ctx context.Context) (err error) {
 			return
 		}
 	}
+}
+
+func (m *personManager) Truncate(ctx context.Context) (err error) {
+	return m.repo.Truncate(ctx)
 }

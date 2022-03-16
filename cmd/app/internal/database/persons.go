@@ -1,6 +1,8 @@
 package database
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
 	neo "github.com/neo4j/neo4j-go-driver/v4/neo4j"
@@ -104,4 +106,33 @@ func (p *personRepository) LoadRelationsFromCSV(filename string) (err error) {
 `, filename), nil)
 
 	return err
+}
+
+func (p *personRepository) Truncate(ctx context.Context) (err error) {
+	session := p.neo.NewSession(neo.SessionConfig{})
+	defer session.Close()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		var res neo.Result
+		if res, err = session.Run(`MATCH (n:Person) WITH n LIMIT 1000 DETACH DELETE n RETURN count(n)`, map[string]interface{}{}); err != nil {
+			return err
+		}
+		var row *neo.Record
+		if row, err = res.Single(); err != nil {
+			return
+		}
+		if count, ok := row.Values[0].(int64); ok {
+			if count < 1000 {
+				return nil
+			}
+			continue
+		}
+		return errors.New("interface conversion err")
+	}
 }
