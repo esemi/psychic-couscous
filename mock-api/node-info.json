@@ -1,0 +1,36 @@
+{
+  "nodes": [{
+    "name": "Pirates of the Caribbean: The Curse of the Black Pearl (2003)",
+    "type": "movie",
+    "id": "tt0325980"
+  },{
+    "name": "Jerry Bruckheimer (1943)",
+    "type": "name",
+    "id": "nm0000988"
+  },{
+    "name": "Johnny Depp (1963)",
+    "type": "name",
+    "id": "nm0000136"
+  },{
+    "name": "Geoffrey Rush (1951)",
+    "type": "name",
+    "id": "nm0001691"
+  }],
+
+  "relations": [{
+      "from_id": "tt0325980",
+      "to_id": "nm0000988",
+      "type": "producer",
+      "name": ""
+  },{
+    "from_id": "tt0325980",
+    "to_id": "nm0000136",
+    "type": "actor",
+    "name": "Jack Sparrow"
+  },{
+    "from_id": "tt0325980",
+    "to_id": "nm0001691",
+    "type": "actor",
+    "name": "Barbossa"
+  }]
+}

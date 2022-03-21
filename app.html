@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+	<meta name="format-detection" content="telephone=no" />
+
+	<title>imdb-vis</title>
+
+	<!-- Google Fonts  -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+	<!-- Local Fonts -->
+	<link rel="preload" href="./assets/fonts/Lato-Medium.woff2" as="font" crossorigin>
+	<link rel="preload" href="./assets/fonts/Lato-MediumItalic.woff2" as="font" crossorigin>
+
+	<!-- Styles  -->
+	<link rel="stylesheet" href="./assets/css/main.css" />
+
+	<!-- Scripts -->
+	<script defer type="text/javascript" src="./assets/js/ogm.min.js"></script>
+	<script defer type="text/javascript" src="./assets/js/app.js"></script>
+</head>
+<body>
+	<header class="header">
+		<div class="header-logo">
+			<img src="assets/img/logo/logo.svg" alt="logo">
+			<a href="https://github.com/esemi/psychic-couscous">
+				<img src="assets/img/icons/github.svg" alt="github">
+			</a>
+		</div>
+		<div class="search-form">
+			<input type="text" class="search-form-input" id="search-form-input" placeholder="Type to search a film or an actor"/>
+			<buttun type="reset" class="search-form-clear" id="search-form-clear" hidden>
+				<img src="assets/img/icons/close.svg" alt="clear">
+			</buttun>
+			<ul id="search-form-results" hidden></ul>
+		</div>
+	</header>
+	<section class="graph">
+		<div class="graph-state" id="graph-state-not-init">
+			<img src="assets/img/icons/dish.svg" alt="ico">
+			<p>
+				Use search to explore a <i>couscous</i> 
+			</p>
+		</div>
+		<div class="graph-state" id="graph-state-not-found">
+			<img src="assets/img/icons/plate.svg" alt="ico">
+			<p>
+				No results for: <span>“asdqwkndqwdnq“</span>
+			</p>
+		</div>
+		<div class="graph-container" id="graph-container"></div>
+		<div class="graph-filter">
+			<button class="graph-filter-toggle">
+				Filters
+			</button>
+			<ul class="graph-filter-list" hidden>
+				<li>
+					<div class="graph-filter-checkbox">
+						<input type="checkbox" id="graph-filter-roles">
+						<label for="graph-filter-roles">
+							Roles
+						</label>
+					</div>
+				</li>
+				<li>
+					<div class="graph-filter-checkbox">
+						<input type="checkbox" id="graph-filter-movie-name">
+						<label for="graph-filter-movie-name">
+							Movie name
+						</label>
+					</div>
+				</li>
+				<li>
+					<div class="graph-filter-checkbox">
+						<input type="checkbox" id="graph-filter-person-name">
+						<label for="graph-filter-person-name">
+							Person name
+						</label>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</section>
+</body>
+</html>
